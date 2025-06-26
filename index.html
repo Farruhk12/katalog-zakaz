@@ -323,7 +323,7 @@ function submitOrder() {
   products.forEach(p => {
     const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
     if (qty > 0) {
-      summary +=`${p.name} — ${qty} \n`;
+      summary +=`${p.name} —${qty} \n`;
       hasItems = true;
     }
   });
