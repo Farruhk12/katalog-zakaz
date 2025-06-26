@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Каталог продуктов</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    h1 { text-align: center; }
+    .product { margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    .product input { width: 50px; margin-left: 10px; }
+    #result { margin-top: 20px; white-space: pre-wrap; background: #f7f7f7; padding: 10px; border-radius: 6px; }
+    button { margin-top: 20px; padding: 10px 20px; }
+    #copyButton { display: none; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h1>Каталог продуктов</h1>
+
+<div id="catalog"></div>
+
+<button onclick="submitOrder()">Сделать заказ</button>
+
+<div id="result"></div>
+<button id="copyButton" onclick="copyToClipboard()">📋 Копировать заказ</button>
+
+<script>
+  const products = [
+    { id: 1, name: "Витамин C", price: 15 },
+    { id: 2, name: "Магний B6", price: 20 },
+    { id: 3, name: "Омега 3", price: 30 },
+  ];
+
+  const catalogDiv = document.getElementById("catalog");
+  const resultDiv = document.getElementById("result");
+  const copyButton = document.getElementById("copyButton");
+
+  // Показываем каталог
+  products.forEach(product => {
+    const div = document.createElement("div");
+    div.className = "product";
+    div.innerHTML = `
+      <strong>${product.name}</strong> — ${product.price} сомони
+      <input type="number" min="0" placeholder="0" id="qty-${product.id}">
+    `;
+    catalogDiv.appendChild(div);
+  });
+
+  function submitOrder() {
+    let summary = "Ваш заказ:\n";
+    let total = 0;
+    products.forEach(p => {
+      const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
+      if (qty > 0) {
+        summary += `• ${p.name} — ${qty} шт. × ${p.price} = ${qty * p.price} сомони\n`;
+        total += qty * p.price;
+      }
+    });
+
+    if (total === 0) {
+      summary = "Вы ничего не выбрали.";
+      copyButton.style.display = "none";
+    } else {
+      summary += `\nИтого: ${total} сомони`;
+      copyButton.style.display = "inline-block";
+    }
+
+    resultDiv.textContent = summary;
+  }
+
+  function copyToClipboard() {
+    const text = resultDiv.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      copyButton.textContent = "✅ Скопировано!";
+      setTimeout(() => {
+        copyButton.textContent = "📋 Копировать заказ";
+      }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
