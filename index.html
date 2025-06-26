@@ -1,46 +1,136 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Каталог продуктов</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Каталог продукции</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    h1 { text-align: center; }
-    .product { margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
-    .product input { width: 50px; margin-left: 10px; }
-    #result { margin-top: 20px; white-space: pre-wrap; background: #f7f7f7; padding: 10px; border-radius: 6px; }
-    button { margin-top: 20px; padding: 10px 20px; }
-    #copyButton { display: none; margin-top: 10px; }
+    :root {
+      --accent: #4CAF50;
+      --bg: #f4f7f9;
+      --card-bg: #fff;
+      --shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: #333;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .product {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 15px;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.2s;
+    }
+
+    .product:hover {
+      transform: scale(1.01);
+    }
+
+    .product input {
+      width: 70px;
+      padding: 6px 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #43a047;
+    }
+
+    #copyButton {
+      display: none;
+      margin-top: 10px;
+    }
+
+    #result {
+      background: #fff;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      white-space: pre-wrap;
+      font-size: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .product {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .product input {
+        margin-top: 8px;
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
 
-<h1>Каталог продуктов</h1>
+<h1>Каталог продукции</h1>
 
 <div id="catalog"></div>
 
 <button onclick="submitOrder()">Сделать заказ</button>
+<button id="copyButton" onclick="copyToClipboard()">📋 Копировать заказ</button>
 
 <div id="result"></div>
-<button id="copyButton" onclick="copyToClipboard()">📋 Копировать заказ</button>
 
 <script>
   const products = [
-    { id: 1, name: "Витамин C", price: 15 },
-    { id: 2, name: "Магний B6", price: 20 },
-    { id: 3, name: "Омега 3", price: 30 },
+    { id: 1, name: "ЛиндаВит Кидс" },
+    { id: 2, name: "ЛиндаВит Вумен" },
+    { id: 3, name: "ЛиндаВит Омега 3" },
+    { id: 4, name: "ЛиндаВит Мам" },
   ];
 
   const catalogDiv = document.getElementById("catalog");
   const resultDiv = document.getElementById("result");
   const copyButton = document.getElementById("copyButton");
 
-  // Показываем каталог
   products.forEach(product => {
     const div = document.createElement("div");
     div.className = "product";
     div.innerHTML = `
-      <strong>${product.name}</strong> — ${product.price} сомони
+      <strong>${product.name}</strong>
       <input type="number" min="0" placeholder="0" id="qty-${product.id}">
     `;
     catalogDiv.appendChild(div);
@@ -48,20 +138,20 @@
 
   function submitOrder() {
     let summary = "Ваш заказ:\n";
-    let total = 0;
+    let hasItems = false;
+
     products.forEach(p => {
       const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
       if (qty > 0) {
-        summary += `• ${p.name} — ${qty} шт. × ${p.price} = ${qty * p.price} сомони\n`;
-        total += qty * p.price;
+        summary += `• ${p.name} — ${qty} шт.\n`;
+        hasItems = true;
       }
     });
 
-    if (total === 0) {
+    if (!hasItems) {
       summary = "Вы ничего не выбрали.";
       copyButton.style.display = "none";
     } else {
-      summary += `\nИтого: ${total} сомони`;
       copyButton.style.display = "inline-block";
     }
 
