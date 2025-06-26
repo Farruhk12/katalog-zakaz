@@ -101,6 +101,7 @@
 
 <button onclick="submitOrder()">Сделать заказ</button>
 <button id="copyButton" onclick="copyToClipboard()">📋 Копировать заказ</button>
+<button id="closeButton" onclick="window.close()" style="display:none;">❌ Закрыть страницу</button>
 
 <div id="result"></div>
 
@@ -301,7 +302,11 @@ products.forEach(product => {
   div.className = "product";
   div.innerHTML = `
     <strong>${product.name}</strong>
-    <input type="number" min="0" placeholder="0" id="qty-${product.id}">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button type="button" onclick="adjustQty(${product.id}, -1)" style="width: 32px; height: 32px; font-size: 18px;">−</button>
+      <input type="number" min="0" value="0" id="qty-${product.id}" style="width: 60px; padding: 6px 8px; font-size: 16px; border-radius: 6px; text-align: center;">
+      <button type="button" onclick="adjustQty(${product.id}, 1)" style="width: 32px; height: 32px; font-size: 18px;">+</button>
+    </div>
   `;
   catalogDiv.appendChild(div);
 });
@@ -321,8 +326,10 @@ function submitOrder() {
   if (!hasItems) {
     summary = "Вы ничего не выбрали.";
     copyButton.style.display = "none";
+    document.getElementById('closeButton').style.display = 'none';
   } else {
     copyButton.style.display = "inline-block";
+    document.getElementById('closeButton').style.display = 'inline-block';
   }
 
   resultDiv.textContent = summary;
@@ -337,7 +344,22 @@ function copyToClipboard() {
     }, 2000);
   });
 }
+
+function adjustQty(id, change) {
+  const input = document.getElementById(`qty-${id}`);
+  let current = parseInt(input.value) || 0;
+  current = Math.max(0, current + change);
+  input.value = current;
+}
+
+function adjustQty(id, change) {
+  const input = document.getElementById(`qty-${id}`);
+  let current = parseInt(input.value) || 0;
+  current = Math.max(0, current + change);
+  input.value = current;
+}
 </script>
+
 
 </body>
 </html>
