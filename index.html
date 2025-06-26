@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Каталог продукции</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
       --accent: #DB3C21;
@@ -72,14 +74,14 @@
 
 <button class="action" onclick="submitOrder()">📦 Сделать заказ</button>
 <button class="action" id="copyButton" onclick="copyToClipboard()" style="display:none;">📋 Скопировать заказ</button>
+<button class="action" id="excelButton" onclick="downloadExcel()" style="display:none;">📥 Скачать в Excel</button>
 <button class="action" id="closeButton" onclick="window.close()" style="display:none;">❌ Закрыть страницу</button>
 
 <div id="result"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
 const products = [
-  { id: 1, name: "Айдип гл/уш капли 10мл" },
+{ id: 1, name: "Айдип гл/уш капли 10мл" },
     { id: 2, name: "Белацеф фл 1гр №10" },
     { id: 3, name: "Гексабел спрей 40мл" },
     { id: 4, name: "Грицен уш.капли 10мл" },
@@ -309,6 +311,7 @@ function submitOrder() {
 
   document.getElementById("result").textContent = hasItems ? summary : "Вы ничего не выбрали.";
   document.getElementById("copyButton").style.display = hasItems ? "block" : "none";
+  document.getElementById("excelButton").style.display = hasItems ? "block" : "none";
   document.getElementById("closeButton").style.display = hasItems ? "block" : "none";
 }
 
@@ -319,6 +322,34 @@ function copyToClipboard() {
     btn.textContent = "✅ Скопировано!";
     setTimeout(() => btn.textContent = "📋 Скопировать заказ", 2000);
   });
+}
+
+function downloadExcel() {
+  const pharmacist = document.getElementById("pharmacist-select").value;
+  const info = pharmacistMap[pharmacist] || {};
+
+  const rows = [
+    ["Провизор", pharmacist],
+    ["Область", info.oblast || ""],
+    ["Телефон", info.number || ""],
+    ["Объект", info.object || ""],
+    [],
+    ["Продукт", "Количество"]
+  ];
+
+  products.forEach(p => {
+    const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
+    if (qty > 0) {
+      rows.push([p.name, qty]);
+    }
+  });
+
+  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Заказ");
+
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(workbook, `Заказ_${pharmacist || "без_имени"}_${today}.xlsx`);
 }
 
 // Fetch провизоров
