@@ -4,104 +4,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Каталог продукции</title>
+  <title>Прайс</title>
   <style>
     :root {
-      --accent: #4CAF50;
-      --bg: #f4f7f9;
-      --card-bg: #fff;
-      --shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      --accent: #DB3C21;
+      --text: #3A4A53;
+      --bg: #f2f4f6;
+      --border: #ccc;
+      --font: 'Segoe UI', sans-serif;
     }
     * {
       box-sizing: border-box;
     }
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
+      padding: 32px 16px;
       background: var(--bg);
-      color: #333;
-      padding: 20px;
+      font-family: var(--font);
+      color: var(--text);
     }
     h1 {
       text-align: center;
-      margin-bottom: 30px;
-      font-weight: 600;
-      color: var(--accent);
+      font-size: 24px;
+      margin-bottom: 24px;
     }
     .product {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 15px;
-      box-shadow: var(--shadow);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: 0.2s;
+      background: white;
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
     }
-    .product:hover {
-      transform: scale(1.01);
+    .product-name {
+      flex: 1;
+      font-size: 15px;
     }
-    .product input {
-      width: 70px;
-      padding: 6px 8px;
+    .qty-controls {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .qty-controls input {
+      width: 50px;
+      height: 34px;
+      text-align: center;
+      border: 1px solid var(--border);
       font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      padding: 4px;
+      border-radius: 0;
     }
-    button {
+    .qty-controls button {
+      width: 38px;
+      height: 34px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 0;
+    }
+    button.action {
       background: var(--accent);
       color: white;
       border: none;
-      border-radius: 8px;
       padding: 12px 20px;
       font-size: 16px;
-      cursor: pointer;
-      margin-top: 20px;
-      display: block;
       width: 100%;
       max-width: 300px;
-      margin-left: auto;
-      margin-right: auto;
-      transition: 0.2s;
-    }
-    button:hover {
-      background: #43a047;
-    }
-    #copyButton {
-      display: none;
-      margin-top: 10px;
+      margin: 16px auto;
+      display: block;
+      border-radius: 0;
+      cursor: pointer;
     }
     #result {
-      background: #fff;
       margin-top: 20px;
+      background: white;
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      white-space: pre-wrap;
+      border: 1px solid var(--border);
       font-size: 16px;
-    }
-    @media (max-width: 600px) {
-      .product {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .product input {
-        margin-top: 8px;
-        width: 100%;
-      }
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
 
-<h1>Каталог продукции</h1>
-
+<h1>Прайс</h1>
 <div id="catalog"></div>
 
-<button onclick="submitOrder()">Сделать заказ</button>
-<button id="copyButton" onclick="copyToClipboard()">📋 Копировать заказ</button>
-<button id="closeButton" onclick="window.close()" style="display:none;">❌ Закрыть страницу</button>
+<button class="action" onclick="submitOrder()">📦 Сформировать заказ</button>
+<button class="action" id="copyButton" onclick="copyToClipboard()" style="display:none;">📋 Скопировать заказ</button>
+<button class="action" id="closeButton" onclick="window.close()" style="display:none;">❌ Закрыть страницу</button>
 
 <div id="result"></div>
 
@@ -291,28 +285,34 @@ const products = [
     { id: 182, name: "Флекси Буст Актив саше 11,8 г. №30" },
     { id: 183, name: "Вилгалин тб 50 мг №30" },
     { id: 184, name: "Ламбротин плюс сироп 100 мл" }
+  // ВСТАВЬ СЮДА СВОЙ СПИСОК { id: ..., name: "..." }
 ];
 
-const catalogDiv = document.getElementById("catalog");
-const resultDiv = document.getElementById("result");
-const copyButton = document.getElementById("copyButton");
+const catalog = document.getElementById("catalog");
 
-products.forEach(product => {
+products.forEach(p => {
   const div = document.createElement("div");
   div.className = "product";
   div.innerHTML = `
-    <strong>${product.name}</strong>
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <button type="button" onclick="adjustQty(${product.id}, -1)" style="width: 32px; height: 32px; font-size: 18px;">−</button>
-      <input type="number" min="0" value="0" id="qty-${product.id}" style="width: 60px; padding: 6px 8px; font-size: 16px; border-radius: 6px; text-align: center;">
-      <button type="button" onclick="adjustQty(${product.id}, 1)" style="width: 32px; height: 32px; font-size: 18px;">+</button>
+    <div class="product-name">${p.name}</div>
+    <div class="qty-controls">
+      <button onclick="adjustQty(${p.id}, -1)">−</button>
+      <input type="number" id="qty-${p.id}" value="0" min="0">
+      <button onclick="adjustQty(${p.id}, 1)">+</button>
     </div>
   `;
-  catalogDiv.appendChild(div);
+  catalog.appendChild(div);
 });
 
+function adjustQty(id, change) {
+  const input = document.getElementById(`qty-${id}`);
+  let val = parseInt(input.value) || 0;
+  val = Math.max(0, val + change);
+  input.value = val;
+}
+
 function submitOrder() {
-  let summary = "Ваш заказ:\n";
+  let summary = "Продукты и их количества:\n";
   let hasItems = false;
 
   products.forEach(p => {
@@ -323,43 +323,20 @@ function submitOrder() {
     }
   });
 
-  if (!hasItems) {
-    summary = "Вы ничего не выбрали.";
-    copyButton.style.display = "none";
-    document.getElementById('closeButton').style.display = 'none';
-  } else {
-    copyButton.style.display = "inline-block";
-    document.getElementById('closeButton').style.display = 'inline-block';
-  }
-
-  resultDiv.textContent = summary;
+  document.getElementById("result").textContent = hasItems ? summary : "Вы ничего не выбрали.";
+  document.getElementById("copyButton").style.display = hasItems ? "block" : "none";
+  document.getElementById("closeButton").style.display = hasItems ? "block" : "none";
 }
 
 function copyToClipboard() {
-  const text = resultDiv.textContent;
+  const text = document.getElementById("result").textContent;
   navigator.clipboard.writeText(text).then(() => {
-    copyButton.textContent = "✅ Скопировано!";
-    setTimeout(() => {
-      copyButton.textContent = "📋 Копировать заказ";
-    }, 2000);
+    const btn = document.getElementById("copyButton");
+    btn.textContent = "✅ Скопировано!";
+    setTimeout(() => btn.textContent = "📋 Скопировать заказ", 2000);
   });
 }
-
-function adjustQty(id, change) {
-  const input = document.getElementById(`qty-${id}`);
-  let current = parseInt(input.value) || 0;
-  current = Math.max(0, current + change);
-  input.value = current;
-}
-
-function adjustQty(id, change) {
-  const input = document.getElementById(`qty-${id}`);
-  let current = parseInt(input.value) || 0;
-  current = Math.max(0, current + change);
-  input.value = current;
-}
 </script>
-
 
 </body>
 </html>
