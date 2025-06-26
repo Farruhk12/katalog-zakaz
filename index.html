@@ -6,7 +6,6 @@
   <title>Каталог продукции</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
       --accent: #DB3C21;
@@ -58,6 +57,28 @@
       padding: 20px; border: 1px solid var(--border);
       font-size: 16px; white-space: pre-wrap;
     }
+
+    .scroll-btn {
+      position: fixed;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+      border: none;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    #scrollTopBtn { bottom: 84px; }
+    #scrollBottomBtn { bottom: 24px; }
+
+    .scroll-btn:hover {
+      background: #3a4a53;
+    }
   </style>
 </head>
 <body>
@@ -72,12 +93,18 @@
 <div id="pharmacist-info" style="max-width: 400px; margin: 0 auto 20px auto; font-size: 15px; background: white; padding: 14px 20px; border: 1px solid var(--border); display: none;"></div>
 <div id="catalog"></div>
 
+<!-- Якорь для перехода вниз -->
+<a id="order-block"></a>
+
 <button class="action" onclick="submitOrder()">📦 Сделать заказ</button>
 <button class="action" id="copyButton" onclick="copyToClipboard()" style="display:none;">📋 Скопировать заказ</button>
-<button class="action" id="excelButton" onclick="downloadExcel()" style="display:none;">📥 Скачать в Excel</button>
 <button class="action" id="closeButton" onclick="window.close()" style="display:none;">❌ Закрыть страницу</button>
 
 <div id="result"></div>
+
+<!-- Кнопки прокрутки -->
+<button id="scrollTopBtn" class="scroll-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });" title="Наверх"> ↑ </button>
+<button id="scrollBottomBtn" class="scroll-btn" onclick="document.getElementById('order-block').scrollIntoView({ behavior: 'smooth' });" title="Вниз"> ↓ </button>
 
 <script>
 const products = [
@@ -311,7 +338,6 @@ function submitOrder() {
 
   document.getElementById("result").textContent = hasItems ? summary : "Вы ничего не выбрали.";
   document.getElementById("copyButton").style.display = hasItems ? "block" : "none";
-  document.getElementById("excelButton").style.display = hasItems ? "block" : "none";
   document.getElementById("closeButton").style.display = hasItems ? "block" : "none";
 }
 
@@ -324,35 +350,7 @@ function copyToClipboard() {
   });
 }
 
-function downloadExcel() {
-  const pharmacist = document.getElementById("pharmacist-select").value;
-  const info = pharmacistMap[pharmacist] || {};
-
-  const rows = [
-    ["Провизор", pharmacist],
-    ["Область", info.oblast || ""],
-    ["Телефон", info.number || ""],
-    ["Объект", info.object || ""],
-    [],
-    ["Продукт", "Количество"]
-  ];
-
-  products.forEach(p => {
-    const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
-    if (qty > 0) {
-      rows.push([p.name, qty]);
-    }
-  });
-
-  const worksheet = XLSX.utils.aoa_to_sheet(rows);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Заказ");
-
-  const today = new Date().toISOString().slice(0, 10);
-  XLSX.writeFile(workbook, `Заказ_${pharmacist || "без_имени"}_${today}.xlsx`);
-}
-
-// Fetch провизоров
+// Загрузка провизоров
 fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/Провизора")
   .then(res => res.json())
   .then(data => {
