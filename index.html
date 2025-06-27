@@ -21,43 +21,87 @@
       font-family: var(--font);
       color: var(--text);
     }
-    h1 { text-align: center; font-size: 24px; margin-bottom: 24px; }
-    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
     select {
       width: 100%; max-width: 400px;
-      margin: 0 auto 24px auto; display: block;
-      padding: 10px; font-size: 16px;
+      margin: 0 auto 24px auto;
+      display: block;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 12px;
     }
     .product {
-      display: flex; justify-content: space-between; align-items: center;
-      background: white; padding: 14px 20px; margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 14px 20px;
+      margin-bottom: 12px;
       border: 1px solid var(--border);
+      border-radius: 12px;
     }
-    .product-name { flex: 1; font-size: 15px; }
+    .product-name {
+      flex: 1;
+      font-size: 15px;
+    }
     .qty-controls {
-      display: flex; gap: 6px; align-items: center;
+      display: flex;
+      gap: 6px;
+      align-items: center;
     }
     .qty-controls input {
-      width: 50px; height: 34px; text-align: center;
-      border: 1px solid var(--border); font-size: 16px; padding: 4px;
+      width: 50px;
+      height: 34px;
+      text-align: center;
+      border: 1px solid var(--border);
+      font-size: 16px;
+      padding: 4px;
+      border-radius: 12px;
     }
     .qty-controls button {
-      width: 38px; height: 34px;
-      border: none; background: var(--accent); color: white;
-      font-size: 18px; cursor: pointer;
+      width: 38px;
+      height: 34px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 12px;
     }
     button.action {
-      background: var(--accent); color: white; border: none;
-      padding: 12px 20px; font-size: 16px;
-      width: 100%; max-width: 300px;
-      margin: 16px auto; display: block; cursor: pointer;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 300px;
+      margin: 16px auto;
+      display: block;
+      cursor: pointer;
+      border-radius: 12px;
     }
     #result {
-      margin-top: 20px; background: white;
-      padding: 20px; border: 1px solid var(--border);
-      font-size: 16px; white-space: pre-wrap;
+      margin-top: 20px;
+      background: white;
+      padding: 20px;
+      border: 1px solid var(--border);
+      font-size: 16px;
+      white-space: pre-wrap;
+      border-radius: 12px;
     }
-
+    #pharmacist-info {
+      border-radius: 12px;
+    }
     .scroll-btn {
       position: fixed;
       right: 24px;
@@ -72,12 +116,10 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.3);
       z-index: 1000;
     }
-
     #scrollTopBtn { bottom: 84px; }
     #scrollBottomBtn { bottom: 24px; }
-
     .scroll-btn:hover {
-      background: #3a4a53;
+      background: #b92f17;
     }
   </style>
 </head>
@@ -93,7 +135,6 @@
 <div id="pharmacist-info" style="max-width: 400px; margin: 0 auto 20px auto; font-size: 15px; background: white; padding: 14px 20px; border: 1px solid var(--border); display: none;"></div>
 <div id="catalog"></div>
 
-<!-- Якорь для перехода вниз -->
 <a id="order-block"></a>
 
 <button class="action" onclick="submitOrder()">📦 Сделать заказ</button>
@@ -103,246 +144,40 @@
 <div id="result"></div>
 
 <!-- Кнопки прокрутки -->
-<button id="scrollTopBtn" class="scroll-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });" title="Наверх"> ↑ </button>
-<button id="scrollBottomBtn" class="scroll-btn" onclick="document.getElementById('order-block').scrollIntoView({ behavior: 'smooth' });" title="Вниз"> ↓ </button>
+<button id="scrollTopBtn" class="scroll-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });" title="Наверх">↑</button>
+<button id="scrollBottomBtn" class="scroll-btn" onclick="document.getElementById('order-block').scrollIntoView({ behavior: 'smooth' });" title="Вниз">↓</button>
 
 <script>
-const products = [
-{ id: 1, name: "Авторекс А тб №30" },
-{ id: 2, name: "Айдип гл/уш капли 10мл" },
-{ id: 3, name: "Албаленс жев тб 400мг №3" },
-{ id: 4, name: "Алгоренс р-р для инф 1г 100мл" },
-{ id: 5, name: "Амбаксин фл 1,5г №1" },
-{ id: 6, name: "Амлизект тб 10мг/20мг №30" },
-{ id: 7, name: "Амлизект тб 5мг/5мг №30" },
-{ id: 8, name: "Амлизект тб 5мг/10мг №30" },
-{ id: 9, name: "Амокварт 500мг №1 фл" },
-{ id: 10, name: "Амокварт сусп 125мг/5мл 100мл" },
-{ id: 11, name: "Амокварт сусп 250мг/5мл 100мл" },
-{ id: 12, name: "Асномит сусп 200мл" },
-{ id: 13, name: "Ацемагнил тб 150мг/30,39 №100" },
-{ id: 14, name: "Ацемагнил тб 75мг/15,2мг №100" },
-{ id: 15, name: "Ашвабуст капс №120" },
-{ id: 16, name: "Белазидим 1гр" },
-{ id: 17, name: "Беламицин тб 3млн МЕ №10" },
-{ id: 18, name: "Беландж тб 2,5мг №30" },
-{ id: 19, name: "Беландж тб 5мг №30" },
-{ id: 20, name: "Белацеф фл 1гр №10" },
-{ id: 21, name: "Белибакт фл 1,5г №1" },
-{ id: 22, name: "Белкарнитин Q10 тб 100мг/10мг №30" },
-{ id: 23, name: "Белкарнитин амп 1г/5мл №5" },
-{ id: 24, name: "Белкарнитин питьевой 1г 10мл №10" },
-{ id: 25, name: "Белкарнитин плюс питьевой 2г/0,2г/10мл №10" },
-{ id: 26, name: "Белнефрокс тб №60" },
-{ id: 27, name: "Биомексин амп 5% 5мл №5" },
-{ id: 28, name: "Вилгалин Мет тб 50мг/850мг №30" },
-{ id: 29, name: "Вилгалин тб 50мг №28" },
-{ id: 30, name: "Виплактин бейби саше №10" },
-{ id: 31, name: "Виплактин капс №20" },
-{ id: 32, name: "Виплактин+Амино орал капли 10мл №10" },
-{ id: 33, name: "ВиТериа саше для женщин №30" },
-{ id: 34, name: "ВиТериа саше для мужчин №30" },
-{ id: 35, name: "Гварденс тб 1мг №30" },
-{ id: 36, name: "Гварденс тб 2мг №30" },
-{ id: 37, name: "Гварденс тб 3мг №30" },
-{ id: 38, name: "Гварденс тб 4мг №30" },
-{ id: 39, name: "Гексабел спрей 40мл" },
-{ id: 40, name: "Гелоцер MR тб 30мг №60" },
-{ id: 41, name: "Гелоцер MR тб 60мг №30" },
-{ id: 42, name: "Гинотизон св ваг №7" },
-{ id: 43, name: "Грицен уш.капли 10мл" },
-{ id: 44, name: "Дейстрек тб 20мг №4" },
-{ id: 45, name: "Деятекс гель 30г" },
-{ id: 46, name: "Дианейро софтжел капс №30" },
-{ id: 47, name: "Доксилакт капс 100мг №10" },
-{ id: 48, name: "Драматек сусп 5мг/20мг 5мл 60мл" },
-{ id: 49, name: "Драматек тб 10мг №20" },
-{ id: 50, name: "Дуотрипсин тб №20" },
-{ id: 51, name: "Ибулайт гель 30г" },
-{ id: 52, name: "Ибулайт Кидс сусп 100мг/5мл 100мл" },
-{ id: 53, name: "Ибулайт тб №10х10" },
-{ id: 54, name: "Изистрим св рек №10" },
-{ id: 55, name: "Иммубелс капли 50мл" },
-{ id: 56, name: "Йодовин тб 100мкг №100" },
-{ id: 57, name: "Йодовин тб 200мкг №100" },
-{ id: 58, name: "Карниактив капс №120" },
-{ id: 59, name: "Категор амп 30мг/мл 1мл №10" },
-{ id: 60, name: "Ко-Багровен тб 10мг/12,5мг №20" },
-{ id: 61, name: "Ко-Багровен тб 20мг/12,5мг №20" },
-{ id: 62, name: "Комневрол Актив тб №20" },
-{ id: 63, name: "Комневрол амп 3мл №5" },
-{ id: 64, name: "Креатин актив саше 5 г. №30" },
-{ id: 65, name: "Кредавейт мазь 30г" },
-{ id: 66, name: "Ламбротин сироп 15мг/2,5мг 100мл" },
-{ id: 67, name: "Ламбротин сироп 30мг/5мг 100мл" },
-{ id: 68, name: "Ламбротин тб 30мг/5мг №20" },
-{ id: 69, name: "Линворгин р-р 42мг/мл 100мл" },
-{ id: 70, name: "Линдавит Вижн капс №30" },
-{ id: 71, name: "Линдавит Д3 капли 15000МЕ/мл 10мл" },
-{ id: 72, name: "Линдавит Д3 капс 60000МЕ №8" },
-{ id: 73, name: "Линдавит для Детей тб жеват №60" },
-{ id: 74, name: "Линдавит для Женщин тб №30" },
-{ id: 75, name: "Линдавит для Мужчин капс №30" },
-{ id: 76, name: "Линдавит Е 400мг софтжел капс №30" },
-{ id: 77, name: "Линдавит Железо капс №30" },
-{ id: 78, name: "Линдавит Железо сироп 150мл" },
-{ id: 79, name: "Линдавит кальциум тб шип №20" },
-{ id: 80, name: "Линдавит кардио шип.тб №20" },
-{ id: 81, name: "Линдавит Лактация капс №30" },
-{ id: 82, name: "Линдавит Омега 3 софтжел капс №30" },
-{ id: 83, name: "Линдавит Остео капли 20мл" },
-{ id: 84, name: "Линдавит плюс тб №30" },
-{ id: 85, name: "Линдавит Прегна тб №30" },
-{ id: 86, name: "Линдавит Пренатал капс №30" },
-{ id: 87, name: "Линдавит С тб шип 1000мг №20" },
-{ id: 88, name: "Линдавит С тб шип 500мг №20" },
-{ id: 89, name: "Линдавит селен тб 200мкг/60мг №30" },
-{ id: 90, name: "Линдавит сироп 150мл" },
-{ id: 91, name: "Линдавит слим тб 200мкг №60" },
-{ id: 92, name: "Линдавит Цинк капли 20мг/мл 15мл" },
-{ id: 93, name: "Линдавит Цирон стик саше 14мг/50мг 10мл №10" },
-{ id: 94, name: "Линдакалц актив тб №30" },
-{ id: 95, name: "Линдакалц сироп 150мл" },
-{ id: 96, name: "ЛиндаМишки пастилки жеват №60" },
-{ id: 97, name: "Линдафер амп 100мг 5мл №5" },
-{ id: 98, name: "Линдацинк тб 20мг №25" },
-{ id: 99, name: "Линдесан амп 300000МЕ/1мл №1" },
-{ id: 100, name: "Магнивит B6 стик 15мл №10" },
-{ id: 101, name: "Мемибел-Л св ваг 750мг/200мг/100мг №7" },
-{ id: 102, name: "Меридон сусп 60мл" },
-{ id: 103, name: "Меридон тб 400мг/100мг №10" },
-{ id: 104, name: "Меритро сусп 125мг/5мл 60мл" },
-{ id: 105, name: "Меритро сусп 250мг/5мл 60мл" },
-{ id: 106, name: "Метфиалк тб 1000мг №30" },
-{ id: 107, name: "Метфиалк тб 500мг №30" },
-{ id: 108, name: "Метфиалк тб 850мг №30" },
-{ id: 109, name: "Миконет сусп 100000ЕД/мл 30мл" },
-{ id: 110, name: "Монтелиз сусп 4мг+2,5мг/5мл 60мл" },
-{ id: 111, name: "Монтелиз тб 10мг/5мг №20" },
-{ id: 112, name: "Найтвитал капс №30" },
-{ id: 113, name: "Насладикс тб 500мг №10" },
-{ id: 114, name: "Нейродакс амп 15мг/мл 1мл №10" },
-{ id: 115, name: "Нейродакс амп 5мг/мл 1мл №10" },
-{ id: 116, name: "Нейродакс тб 20мг №50" },
-{ id: 117, name: "Новоспаз тб 500мг №10" },
-{ id: 118, name: "Нормджигар сироп 90мл" },
-{ id: 119, name: "Панолект пор 40мг №1 фл" },
-{ id: 120, name: "Пиногал тб 75мг №30" },
-{ id: 121, name: "Прикладер крем 20г" },
-{ id: 122, name: "Регисол Кидс саше №10" },
-{ id: 123, name: "Ривалект амп 75мг 3мл №5" },
-{ id: 124, name: "Р Rivalект гель 1% 50г туба" },
-{ id: 125, name: "Риглодем тб 10мг №30" },
-{ id: 126, name: "Риглодем тб 20мг №30" },
-{ id: 127, name: "Родилоза сироп 150мл" },
-{ id: 128, name: "Седалайт бейби капли 30мл" },
-{ id: 129, name: "Седалайт тб №40" },
-{ id: 130, name: "Сепард тб 25мг №20" },
-{ id: 131, name: "Стофексим сусп 100мг/5мл 50мл" },
-{ id: 132, name: "Стофексим сусп 50мг/5мл 30мл" },
-{ id: 133, name: "Стофексим тб 200мг №12" },
-{ id: 134, name: "Стофексим тб 400мг №12" },
-{ id: 135, name: "Тавестин амп 1мг/мл 2мл №5" },
-{ id: 136, name: "Тавестин тб 1мг №20" },
-{ id: 137, name: "Тадес сусп 2,5мг/5мг 100мл" },
-{ id: 138, name: "Тадес тб 5мг №10" },
-{ id: 139, name: "Тадрета тб 10мг №20" },
-{ id: 140, name: "Тадрета тб 5мг №20" },
-{ id: 141, name: "Тадрета тб 5мг №30" },
-{ id: 142, name: "Тваксипим 1г фл" },
-{ id: 143, name: "Тестобуст Актив капс №120" },
-{ id: 144, name: "Тиобел р-р 600мг/50мл №1" },
-{ id: 145, name: "Тиобел тб 600мг №30" },
-{ id: 146, name: "Торизонт инфуз фл 250мл №1" },
-{ id: 147, name: "Траволайф леденци №12 Мед+Апельсин" },
-{ id: 148, name: "Траволайф леденци №12 Мед+Лимон" },
-{ id: 149, name: "Траволайф мазь 20г" },
-{ id: 150, name: "Траволайф сироп 100мл" },
-{ id: 151, name: "Тривейт мазь 15г" },
-{ id: 152, name: "Фарфолекс р-р 200мг 100мл" },
-{ id: 153, name: "Фебутен пор саше 100мг №10" },
-{ id: 154, name: "Фебутен тб 250мг №20" },
-{ id: 155, name: "Фиатфон тб 20мг №30" },
-{ id: 156, name: "Фиатфон фл 20мг №5" },
-{ id: 157, name: "Флекси Буст Актив саше 11,8 г. №30" },
-{ id: 158, name: "Флекси В12 амп 3мл №5" },
-{ id: 159, name: "Церебрал Беби капли орал 20мл" },
-{ id: 160, name: "Церебрал Голд 50+ капс №30" },
-{ id: 161, name: "Церебрал Кидс капли орал 20мл" },
-{ id: 162, name: "Церебрал Ког капс №30" },
-{ id: 163, name: "Церебрал пит. фл №20" },
-{ id: 164, name: "Ципробел сусп 125мг/5мл 60мл" },
-{ id: 165, name: "Эзолект тб 20мг №20" },
-{ id: 166, name: "Эзолект тб 40мг №20" },
-{ id: 167, name: "Эксталонг спрей 100мг/1мл 20мл" },
-{ id: 168, name: "Эктивейн софтжел капс 500мг №30" },
-{ id: 169, name: "Эмглизин мет тб 12,5мг/850мг №14" },
-{ id: 170, name: "Эмглизин тб 25мг №14" },
-{ id: 171, name: "Энокт амп 4000МЕ №1" },
-{ id: 172, name: "Энокт амп 6000МЕ №1" },
-{ id: 173, name: "Эспактив капс 80мг/250мг №20" },
-{ id: 174, name: "Эспактив Кидс 40мг/5мл сироп 100мл" },
-{ id: 175, name: "Эсфаж амп 5мл №5" },
-{ id: 176, name: "Эсфаж софтжел капс 300мг №30" },
-];
-
-const pharmacistMap = {};
+const products = [];
 const catalog = document.getElementById("catalog");
+const pharmacistMap = {};
 
-products.forEach(p => {
-  const div = document.createElement("div");
-  div.className = "product";
-  div.innerHTML = `
-    <div class="product-name">${p.name}</div>
-    <div class="qty-controls">
-      <button onclick="adjustQty(${p.id}, -1)">−</button>
-      <input type="number" id="qty-${p.id}" value="0" min="0">
-      <button onclick="adjustQty(${p.id}, 1)">+</button>
-    </div>
-  `;
-  catalog.appendChild(div);
-});
+// Загрузка продуктов из листа "Продукты"
+fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/Продукты")
+  .then(res => res.json())
+  .then(data => {
+    data.forEach((row, index) => {
+      const name = row["Название"] || Object.values(row)[0];
+      if (name) {
+        const id = 1000 + index;
+        products.push({ id, name });
 
-function adjustQty(id, change) {
-  const input = document.getElementById(`qty-${id}`);
-  let val = parseInt(input.value) || 0;
-  input.value = Math.max(0, val + change);
-}
-
-function submitOrder() {
-  const pharmacist = document.getElementById("pharmacist-select").value;
-  const info = pharmacistMap[pharmacist];
-
-  let summary = `Провизор: ${pharmacist}`;
-  if (info) {
-    summary += `\nОбласть: ${info.oblast}\nТелефон: ${info.number}\nОбъект: ${info.object}`;
-  }
-
-  summary += `\n\nВаш заказ:\n`;
-  let hasItems = false;
-  products.forEach(p => {
-    const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
-    if (qty > 0) {
-      summary +=`${p.name} — ${qty}\n`;
-      hasItems = true;
-    }
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <div class="product-name">${name}</div>
+          <div class="qty-controls">
+            <button onclick="adjustQty(${id}, -1)">−</button>
+            <input type="number" id="qty-${id}" value="0" min="0">
+            <button onclick="adjustQty(${id}, 1)">+</button>
+          </div>
+        `;
+        catalog.appendChild(div);
+      }
+    });
   });
 
-  document.getElementById("result").textContent = hasItems ? summary : "Вы ничего не выбрали.";
-  document.getElementById("copyButton").style.display = hasItems ? "block" : "none";
-  document.getElementById("closeButton").style.display = hasItems ? "block" : "none";
-}
-
-function copyToClipboard() {
-  const text = document.getElementById("result").textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById("copyButton");
-    btn.textContent = "✅ Скопировано!";
-    setTimeout(() => btn.textContent = "📋 Скопировать заказ", 2000);
-  });
-}
-
-// Загрузка провизоров
+// Загрузка провизоров из листа "Провизора"
 fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/Провизора")
   .then(res => res.json())
   .then(data => {
@@ -383,6 +218,45 @@ fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/П�
       }
     });
   });
+
+function adjustQty(id, change) {
+  const input = document.getElementById(`qty-${id}`);
+  let val = parseInt(input.value) || 0;
+  input.value = Math.max(0, val + change);
+}
+
+function submitOrder() {
+  const pharmacist = document.getElementById("pharmacist-select").value;
+  const info = pharmacistMap[pharmacist];
+
+  let summary = `Провизор: ${pharmacist}`;
+  if (info) {
+    summary += `\nОбласть: ${info.oblast}\nТелефон: ${info.number}\nОбъект: ${info.object}`;
+  }
+
+  summary += `\n\nВаш заказ:\n`;
+  let hasItems = false;
+  products.forEach(p => {
+    const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
+    if (qty > 0) {
+      summary += `${p.name} — ${qty}\n`;
+      hasItems = true;
+    }
+  });
+
+  document.getElementById("result").textContent = hasItems ? summary : "Вы ничего не выбрали.";
+  document.getElementById("copyButton").style.display = hasItems ? "block" : "none";
+  document.getElementById("closeButton").style.display = hasItems ? "block" : "none";
+}
+
+function copyToClipboard() {
+  const text = document.getElementById("result").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById("copyButton");
+    btn.textContent = "✅ Скопировано!";
+    setTimeout(() => btn.textContent = "📋 Скопировать заказ", 2000);
+  });
+}
 </script>
 
 </body>
