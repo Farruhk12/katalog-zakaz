@@ -235,7 +235,7 @@ function submitOrder() {
     summary += `\nОбласть: ${info.oblast}\nТелефон: ${info.number}\nОбъект: ${info.object}`;
   }
 
-  summary += `\n\nВаша заявка:\n`;
+  summary += `\n\nЗаявка:\n`;
   let hasItems = false;
   products.forEach(p => {
     const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
