@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
+</head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Каталог продукции</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --accent: #DB3C21;
@@ -139,7 +140,7 @@
 
 <button class="action" onclick="submitOrder()">📦 Сделать заказ</button>
 <button class="action" id="copyButton" onclick="copyToClipboard()" style="display:none;">📋 Скопировать заказ</button>
-<button class="action" id="closeButton" onclick="window.close()" style="display:none;">❌ Закрыть страницу</button>
+<button class="action" id="closeButton" onclick="closeApp()" style="display:none;">❌ Закрыть</button>
 
 <div id="result"></div>
 
@@ -256,6 +257,13 @@ function copyToClipboard() {
     btn.textContent = "✅ Скопировано!";
     setTimeout(() => btn.textContent = "📋 Скопировать заказ", 2000);
   });
+}
+function closeApp() {
+  if (typeof Telegram !== "undefined" && Telegram.WebApp) {
+    Telegram.WebApp.close();
+  } else {
+    alert("Функция закрытия доступна только в Telegram.");
+  }
 }
 </script>
 
