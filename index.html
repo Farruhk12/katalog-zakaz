@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
-</head>
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Оформление заявки</title>
@@ -102,6 +102,13 @@
     }
     #pharmacist-info {
       border-radius: 12px;
+      max-width: 400px;
+      margin: 0 auto 20px auto;
+      font-size: 15px;
+      background: white;
+      padding: 14px 20px;
+      border: 1px solid var(--border);
+      display: none;
     }
     .scroll-btn {
       position: fixed;
@@ -133,7 +140,13 @@
   <option disabled selected value="">— загрузка... —</option>
 </select>
 
-<div id="pharmacist-info" style="max-width: 400px; margin: 0 auto 20px auto; font-size: 15px; background: white; padding: 14px 20px; border: 1px solid var(--border); display: none;"></div>
+<div id="pharmacist-info"></div>
+
+<label for="group-select">Выберите группу товаров:</label>
+<select id="group-select">
+  <option disabled selected value="">— загрузка... —</option>
+</select>
+
 <div id="catalog"></div>
 
 <a id="order-block"></a>
@@ -144,41 +157,17 @@
 
 <div id="result"></div>
 
-<!-- Кнопки прокрутки -->
 <button id="scrollTopBtn" class="scroll-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });" title="Наверх">↑</button>
 <button id="scrollBottomBtn" class="scroll-btn" onclick="document.getElementById('order-block').scrollIntoView({ behavior: 'smooth' });" title="Вниз">↓</button>
 
 <script>
-const products = [];
 const catalog = document.getElementById("catalog");
+const groupSelect = document.getElementById("group-select");
 const pharmacistMap = {};
+const allProducts = [];
+const productsByGroup = {};
 
-// Загрузка продуктов из листа "Продукты"
-fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/Продукты")
-  .then(res => res.json())
-  .then(data => {
-    data.forEach((row, index) => {
-      const name = row["Название"] || Object.values(row)[0];
-      if (name) {
-        const id = 1000 + index;
-        products.push({ id, name });
-
-        const div = document.createElement("div");
-        div.className = "product";
-        div.innerHTML = `
-          <div class="product-name">${name}</div>
-          <div class="qty-controls">
-            <button onclick="adjustQty(${id}, -1)">−</button>
-            <input type="number" id="qty-${id}" value="0" min="0">
-            <button onclick="adjustQty(${id}, 1)">+</button>
-          </div>
-        `;
-        catalog.appendChild(div);
-      }
-    });
-  });
-
-// Загрузка провизоров из листа "Провизора"
+// Загрузка провизоров
 fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/Провизора")
   .then(res => res.json())
   .then(data => {
@@ -200,7 +189,7 @@ fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/П�
       }
     });
 
-    const choices = new Choices(select, {
+    new Choices(select, {
       searchEnabled: true,
       shouldSort: false,
       placeholder: true,
@@ -209,14 +198,62 @@ fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/П�
 
     select.addEventListener("change", () => {
       const selected = select.value;
-      const data = pharmacistMap[selected];
+      const info = pharmacistMap[selected];
       const infoDiv = document.getElementById("pharmacist-info");
-      if (data) {
-        infoDiv.innerHTML = `<strong>Область:</strong> ${data.oblast}<br><strong>Телефон:</strong> ${data.number}<br><strong>Объект:</strong> ${data.object}`;
+      if (info) {
+        infoDiv.innerHTML = `<strong>Область:</strong> ${info.oblast}<br><strong>Телефон:</strong> ${info.number}<br><strong>Объект:</strong> ${info.object}`;
         infoDiv.style.display = "block";
       } else {
         infoDiv.style.display = "none";
       }
+    });
+  });
+
+// Загрузка продуктов
+fetch("https://opensheet.elk.sh/1m0-XzvcB5QNKz4zkGvw2DdogEUlepT48XtY0TreZbYo/Продукты")
+  .then(res => res.json())
+  .then(data => {
+    data.forEach((row, index) => {
+      const name = row["Название"] || Object.values(row)[0];
+      const group = row["Группы"] || Object.values(row)[1] || "Без группы";
+      const id = 1000 + index;
+      const product = { id, name, group };
+      allProducts.push(product);
+
+      if (!productsByGroup[group]) productsByGroup[group] = [];
+      productsByGroup[group].push(product);
+
+      // Создаём элемент товара один раз
+      const div = document.createElement("div");
+      div.className = "product";
+      div.id = `product-${id}`;
+      div.dataset.group = group;
+      div.innerHTML = `
+        <div class="product-name">${name}</div>
+        <div class="qty-controls">
+          <button onclick="adjustQty(${id}, -1)">−</button>
+          <input type="number" id="qty-${id}" value="0" min="0">
+          <button onclick="adjustQty(${id}, 1)">+</button>
+        </div>
+      `;
+      catalog.appendChild(div);
+    });
+
+    // Заполняем список групп
+    const groups = Object.keys(productsByGroup).sort();
+    groupSelect.innerHTML = '<option disabled selected value="">— выберите группу —</option>';
+    groups.forEach(g => {
+      const option = document.createElement("option");
+      option.value = g;
+      option.textContent = g;
+      groupSelect.appendChild(option);
+    });
+
+    groupSelect.addEventListener("change", () => {
+      const selectedGroup = groupSelect.value;
+      document.querySelectorAll(".product").forEach(el => {
+        el.style.display = (el.dataset.group === selectedGroup) ? "flex" : "none";
+      });
     });
   });
 
@@ -237,8 +274,9 @@ function submitOrder() {
 
   summary += `\n\nЗаявка:\n`;
   let hasItems = false;
-  products.forEach(p => {
-    const qty = parseInt(document.getElementById(`qty-${p.id}`).value) || 0;
+  allProducts.forEach(p => {
+    const input = document.getElementById(`qty-${p.id}`);
+    const qty = parseInt(input.value) || 0;
     if (qty > 0) {
       summary += `${p.name} — ${qty}\n`;
       hasItems = true;
@@ -258,6 +296,7 @@ function copyToClipboard() {
     setTimeout(() => btn.textContent = "📋 Скопировать заказ", 2000);
   });
 }
+
 function closeApp() {
   if (typeof Telegram !== "undefined" && Telegram.WebApp) {
     Telegram.WebApp.close();
